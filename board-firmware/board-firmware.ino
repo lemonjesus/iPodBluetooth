@@ -1,12 +1,3 @@
-/**
-   @file streams-i2s-a2dp.ino
-   @author Phil Schatzmann
-   @brief see https://github.com/pschatzmann/arduino-audio-tools/blob/main/examples/examples-stream/stream-i2s-a2dp/README.md
-
-   @author Phil Schatzmann
-   @copyright GPLv3
-*/
-
 #define USE_A2DP
 
 #include "AudioTools.h"
@@ -21,17 +12,66 @@ A2DPStream out = A2DPStream::instance(); // access A2DP as stream
 StreamCopy copier(out, in);              // copy i2sStream to a2dpStream
 
 QueueHandle_t pt_event_queue;
+QueueHandle_t scan_result_queue;
 
 const char* LOG_TAG = "iPodN3GBluetooth";
+
+scan_result_msg_t results[20];
+char device_name_buffer[ESP_BT_GAP_MAX_BDNAME_LEN + 1];
 
 // Arduino Setup
 void setup(void) {
   Serial.begin(9600);
+//  Serial.begin(115200);
 
-  // start i2s input with default configuration
-  ESP_LOGI(LOG_TAG, "starting I2S... ");
+  // start bluetooth
+  ESP_LOGI(LOG_TAG, "starting A2DP...");
+  auto cfgA2DP = out.defaultConfig(TX_MODE);
+  cfgA2DP.name = (char*)"test";
+  pt_event_queue = cfgA2DP.passthrough_event_queue;
+  scan_result_queue = cfgA2DP.scan_result_queue;
+
+  // step 1: begin the A2DP connection. my modifications make it no longer block,
+  //         so we have to manage the connection state ourselves.
+  out.begin(cfgA2DP);
+
+  // step 2: listen for events on the scan result queue. when we get one, we write it to serial
+  //         if we get a name back over serial, then we submit it back on the queue.
+  scan_result_msg_t result;
+  bool looking = true;
+  uint8_t nameidx = 0;
+  
+  while(looking) {
+    if(Serial.available() > 0) {
+      char c = Serial.read();
+      if(c == '\n') {
+        Serial.println(device_name_buffer);
+        out.a2dp_source->set_local_name(device_name_buffer);
+        looking = false;
+      } else {
+        device_name_buffer[nameidx] = c;
+        nameidx++;
+      }
+    }
+    
+    if(xQueueReceive(scan_result_queue, &result, 10) == pdTRUE) {
+      Serial.print("device: ");
+      Serial.println((char*)result.name);
+    }
+  }
+
+  // step 3: after submitting it back on the queue, we continuously poll is connected before proceeding
+  while(!out.a2dp_source->is_connected()){
+    Serial.println("connecting");
+    delay(1000);
+  }
+
+  Serial.println("connected");
+
+//  ESP_LOGI(LOG_TAG, "starting I2S... ");
+  Serial.println("starting I2S...");
   auto config = in.defaultConfig(RX_MODE);
-  config.i2s_format = I2S_STD_FORMAT; // if quality is bad change to I2S_MSB_FORMAT https://github.com/pschatzmann/arduino-audio-tools/issues/23
+  config.i2s_format = I2S_STD_FORMAT;
   config.sample_rate = 44100;
   config.channels = 2;
   config.bits_per_sample = 16;
@@ -41,15 +81,11 @@ void setup(void) {
   config.pin_data = I2S_PIN_DATA;
   config.use_apll = false;
   in.begin(config);
+  Serial.println("I2S ready");
 
-  // start bluetooth
-  ESP_LOGI(LOG_TAG, "starting A2DP...");
-  auto cfgA2DP = out.defaultConfig(TX_MODE);
-  cfgA2DP.name = "OontZ Angle 3 DS 66B";
-  pt_event_queue = cfgA2DP.passthrough_event_queue;
-  out.begin(cfgA2DP);
-  out.setVolume(0.3);
-
+  // step 4: notify the dependent audio stream
+  out.notifyBaseInfo(44100);
+  
   ESP_LOGI(LOG_TAG, "Done!");
 }
 
@@ -59,10 +95,12 @@ void loop() {
   copier.copy();
 
   esp_avrc_tg_cb_param_t::avrc_tg_psth_cmd_param event;
+  esp_bt_gap_cb_param_t result;
 
   if(pt_event_queue) {
-    xQueueReceive(pt_event_queue, &event, 0);
-    if(event.key_code != 0) passthrough_callback(event);
+    if(xQueueReceive(pt_event_queue, &event, 0) == pdTRUE) {
+      if(event.key_code != 0) passthrough_callback(event);
+    }
   }
 }
 
