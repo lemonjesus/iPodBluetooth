@@ -22,6 +22,7 @@ char device_name_buffer[ESP_BT_GAP_MAX_BDNAME_LEN + 1];
 // Arduino Setup
 void setup(void) {
   Serial.begin(9600);
+  Serial.println("starting");
 //  Serial.begin(115200);
 
   // start bluetooth
@@ -100,6 +101,16 @@ void loop() {
   if(pt_event_queue) {
     if(xQueueReceive(pt_event_queue, &event, 0) == pdTRUE) {
       if(event.key_code != 0) passthrough_callback(event);
+    }
+  }
+
+  if(Serial.available() > 6) {
+    String command = Serial.readStringUntil('\n');
+
+    if(command.equals("reset")){
+        Serial.println("resetting");
+        ESP.restart();
+        while(1) {};
     }
   }
 }
