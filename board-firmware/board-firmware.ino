@@ -18,12 +18,20 @@ const char* LOG_TAG = "iPodN3GBluetooth";
 
 scan_result_msg_t results[20];
 char device_name_buffer[ESP_BT_GAP_MAX_BDNAME_LEN + 1];
+char device_name[ESP_BT_GAP_MAX_BDNAME_LEN + 1];
+char last_dev_buffer[ESP_BT_GAP_MAX_BDNAME_LEN + 1];
+uint8_t nameidx = 0;
+
+TaskHandle_t audio_copy_task_handle = NULL;
+TaskHandle_t ipod_control_task_handle = NULL;
+TaskHandle_t reset_command_task_handle = NULL;
 
 // Arduino Setup
 void setup(void) {
   Serial.begin(9600);
-  Serial.println("starting");
-//  Serial.begin(115200);
+  Serial.print("\n\nstarting\n");
+
+  memset((void*)device_name_buffer, 0, ESP_BT_GAP_MAX_BDNAME_LEN + 1);
 
   // start bluetooth
   ESP_LOGI(LOG_TAG, "starting A2DP...");
@@ -40,15 +48,21 @@ void setup(void) {
   //         if we get a name back over serial, then we submit it back on the queue.
   scan_result_msg_t result;
   bool looking = true;
-  uint8_t nameidx = 0;
-  
-  while(looking) {
+
+  while(true) {
     if(Serial.available() > 0) {
       char c = Serial.read();
-      if(c == '\n') {
-        Serial.println(device_name_buffer);
-        out.a2dp_source->set_local_name(device_name_buffer);
-        looking = false;
+      if(c > 0x7f) {}
+      else if(c == '\n') {
+        nameidx = 0;
+        if(strncmp(device_name_buffer, "reset", 5) == 0) {
+          ESP.restart();
+        } else {
+//        if(strncmp(device_name_buffer, "connect: ", 7) == 0) {
+          strcpy(device_name, device_name_buffer);
+          out.a2dp_source->set_local_name(device_name);
+          break;
+        }
       } else {
         device_name_buffer[nameidx] = c;
         nameidx++;
@@ -56,21 +70,45 @@ void setup(void) {
     }
     
     if(xQueueReceive(scan_result_queue, &result, 10) == pdTRUE) {
-      Serial.print("device: ");
-      Serial.println((char*)result.name);
+      if(strcmp((char*) result.name, last_dev_buffer) != 0 || ESP.getCycleCount() % 1000 == 0) {
+        Serial.print("device: ");
+        Serial.print((char*)result.name);
+        Serial.print("\n");
+        strncpy(last_dev_buffer, (char*) result.name, ESP_BT_GAP_MAX_BDNAME_LEN);
+      }
     }
   }
 
+  nameidx = 0;
+
   // step 3: after submitting it back on the queue, we continuously poll is connected before proceeding
   while(!out.a2dp_source->is_connected()){
-    Serial.println("connecting");
+    Serial.print("connecting to ");
+    Serial.print(device_name);
+    Serial.print("\n");
+    
+    if(Serial.available() > 0) {
+      char c = Serial.read();
+      if(c > 0x7f) {}
+      else if(c == '\n') {
+        if(strcmp(device_name_buffer, "reset") == 0) {
+          ESP.restart();
+        } else {
+          nameidx = 0;
+          memset((void*)device_name_buffer, 0, ESP_BT_GAP_MAX_BDNAME_LEN + 1);
+        }
+      } else {
+        device_name_buffer[nameidx] = c;
+        nameidx++;
+      }
+    }
     delay(1000);
   }
 
-  Serial.println("connected");
+  Serial.print("connected\n");
 
 //  ESP_LOGI(LOG_TAG, "starting I2S... ");
-  Serial.println("starting I2S...");
+  Serial.print("starting I2S...\n");
   auto config = in.defaultConfig(RX_MODE);
   config.i2s_format = I2S_STD_FORMAT;
   config.sample_rate = 44100;
@@ -82,38 +120,79 @@ void setup(void) {
   config.pin_data = I2S_PIN_DATA;
   config.use_apll = false;
   in.begin(config);
-  Serial.println("I2S ready");
+  Serial.print("I2S ready\n");
 
   // step 4: notify the dependent audio stream
   out.notifyBaseInfo(44100);
   
   ESP_LOGI(LOG_TAG, "Done!");
+
+  BaseType_t xReturned = xTaskCreate(audio_copy_task, "AudioCopyTask", 1024 * 8, NULL, tskIDLE_PRIORITY, &audio_copy_task_handle);
+  if(xReturned != pdPASS) {
+    Serial.print("error making the audio copy task. restarting.\n");
+    ESP.restart();
+  }
+
+  xReturned = xTaskCreate(ipod_control_task, "iPodControlTask", 1024 * 4, NULL, tskIDLE_PRIORITY, &ipod_control_task_handle);
+  if(xReturned != pdPASS) {
+    Serial.print("error making the audio copy task. restarting.\n");
+    ESP.restart();
+  }
+
+  xReturned = xTaskCreate(reset_command_task, "ResetCommandTask", 1024 * 4, NULL, tskIDLE_PRIORITY, &reset_command_task_handle);
+  if(xReturned != pdPASS) {
+    Serial.print("error making the audio copy task. restarting.\n");
+    ESP.restart();
+  }
+
+  Serial.print("Done\n");
 }
 
-// Arduino loop - copy data
-void loop() {
-  // process audio
-  copier.copy();
+void audio_copy_task(void* pvParameters) {
+  for( ;; ) copier.copy();
+}
 
+void ipod_control_task(void* pvParameters) {
   esp_avrc_tg_cb_param_t::avrc_tg_psth_cmd_param event;
   esp_bt_gap_cb_param_t result;
 
-  if(pt_event_queue) {
-    if(xQueueReceive(pt_event_queue, &event, 0) == pdTRUE) {
-      if(event.key_code != 0) passthrough_callback(event);
+  for( ;; ) {
+    if(pt_event_queue) {
+      if(xQueueReceive(pt_event_queue, &event, 0) == pdTRUE) {
+        if(event.key_code != 0) passthrough_callback(event);
+      }
     }
   }
-
-  if(Serial.available() > 6) {
-    String command = Serial.readStringUntil('\n');
-
-    if(command.equals("reset")){
-        Serial.println("resetting");
-        ESP.restart();
-        while(1) {};
-    }
-  }
+  taskYIELD();
 }
+
+void reset_command_task(void* pvParameters) {
+  char serial_buf[512];
+  int serialidx = 0;
+  
+  memset((void*)serial_buf, 0, 512);
+  
+  for( ;; ) {
+    if(Serial.available() > 0) {
+      char c = Serial.read();
+      if(c > 0x7f) {}
+      else if(c == '\n' || serialidx >= 512) {
+        if(strcmp(serial_buf, "reset") == 0) {
+          ESP.restart();
+        } else {
+          serialidx = 0;
+          memset((void*)serial_buf, 0, 512);
+        }
+      } else {
+        serial_buf[nameidx] = c;
+        serialidx++;
+      }
+    }
+  }
+  taskYIELD();
+}
+
+void loop() {}
 
 void passthrough_callback(esp_avrc_tg_cb_param_t::avrc_tg_psth_cmd_param param) {
   // key codes: https://github.com/espressif/esp-idf/blob/a82e6e63d98bb051d4c59cb3d440c537ab9f74b0/components/bt/host/bluedroid/api/include/api/esp_avrc_api.h#L44-L102
