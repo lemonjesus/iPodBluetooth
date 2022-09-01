@@ -1,0 +1,82 @@
+common.c
+
+#if defined(IPOD_NANO2G)
+ipodnano2g.c
+#elif defined(IPOD_6G) || defined(IPOD_NANO3G) || defined(IPOD_NANO4G)
+ipods5l-devel.c
+#elif defined(IPOD_ARCH)
+ipod.c
+#elif defined(GIGABEAT_F)
+gigabeat.c
+#elif defined(GIGABEAT_S)
+gigabeat-s.c
+show_logo.c
+../firmware/target/arm/imx31/mmu-imx31.c
+#elif defined(IRIVER_H10) || defined(IRIVER_H10_5GB) || \
+      defined(SANSA_E200) || defined(SANSA_C200) || \
+      defined(MROBE_100)  || defined(PHILIPS_SA9200) || \
+      defined(PHILIPS_HDD1630) || defined(PHILIPS_HDD6330) || \
+      defined(SAMSUNG_YH820) || defined(SAMSUNG_YH920) || \
+      defined(SAMSUNG_YH925) || defined(SANSA_VIEW)
+#ifdef E200R_INSTALLER
+main-e200r-installer.c
+#elif defined(SANSA_PP_ERASE)
+main-ppsansawipe.c
+fat32format.c
+#elif defined(SANSA_VIEW)
+sansaview.c
+#else
+show_logo.c
+main-pp.c
+#endif
+#elif defined(TATUNG_TPJ1022)
+tpj1022.c
+#elif defined(IAUDIO_X5) || defined(IAUDIO_M5) || defined(IAUDIO_M3)
+iaudio_coldfire.c
+#elif defined(IRIVER_H100_SERIES)
+iriver_h1x0.c
+#elif defined(IRIVER_H300_SERIES)
+iriver_h300.c
+#elif defined(MROBE_500)
+mrobe500.c
+#elif defined(CPU_TCC77X) || defined(CPU_TCC780X)
+telechips.c
+show_logo.c
+#elif defined(MEIZU_M6SL)
+meizu_m6sl.c
+#elif defined(MEIZU_M6SP)
+meizu_m6sp.c
+#elif defined(MEIZU_M3)
+meizu_m3.c
+#elif defined(SAMSUNG_YPS3)
+samsung_yps3.c
+#elif defined(ONDA_VX747) || defined(ONDA_VX747P) || defined(ONDA_VX767) || defined(ONDA_VX777)
+ondavx747.c
+show_logo.c
+#elif defined(CREATIVE_ZVx)
+creativezvm.c
+#elif CONFIG_CPU==AS3525 || CONFIG_CPU==AS3525v2
+sansa_as3525.c
+show_logo.c
+#elif CONFIG_CPU==IMX233
+imx233.c
+#elif defined(LYRE_PROTO1)
+lyre_proto1.c
+show_logo.c
+#elif defined(MINI2440)
+mini2440.c
+show_logo.c
+#elif defined(PBELL_VIBE500)
+main-pp.c
+show_logo.c
+#elif defined(MPIO_HD200) || defined(MPIO_HD300)
+mpio_hd200_hd300.c
+#elif defined(RK27_GENERIC) || defined(HM60X) || defined(HM801) \
+      || defined(MA9) || defined(MA9C) || defined(MA8) || defined(MA8C) \
+      || defined(IHIFI760) || defined(IHIFI960)
+rk27xx.c
+show_logo.c
+#elif defined(SANSA_CONNECT)
+sansaconnect.c
+show_logo.c
+#endif
