@@ -2,20 +2,20 @@
 I've been working on this project for a while because I thought it would be simple. Feature creep and lack of skill have lead me on a year long journey down a rabbit hole of things I didn't expect to learn about. This has been fun (by some definition) and I hope someone somewhere finds use for this.
 
 ## Aren't there already Bluetooth transmitters for the iPod?
-Sort of. There aren't any internal solutions specifically for the iPod, and as far as I can tell none that are suited for use in an iPod Nano. I attempted to change that. I got close to an OK solution I think.
+Sort of. There aren't any fully digital solutions specifically for the iPod, and as far as I can tell none that are suited for use in an iPod Nano. I attempted to change that. I got close to an OK solution I think.
 
 ## Features
-* A completely digital audio pipeline! The audio signal never goes through an ADC or DAC until it reaches your headphones!
-* The ability to pick what device to connect to from the iPod on boot!
-* The ability to control the iPod from your Bluetooth speaker/headset (play, pause, next, prev, etc.)
+* **A completely digital audio pipeline!** The audio signal never goes through an ADC or DAC until it reaches your headphones!
+* **The ability to pick what device to connect to from the iPod on boot!**
+* **The ability to control the iPod from your Bluetooth speaker/headset** (play, pause, next, prev, etc.)
 * Widely available components with an easy to assemble board (despite using 0402 passives)
 * Uses the Arduino environment so it's easy(ish) to program and you don't need the ESP-IDF
-* No Dongles (just incredibly complicated soldering)
+* No Dongles! (just incredibly complicated soldering)
 
 ## Design Constraints 
 _(or, justification as to why it's designed the way that it is)_
 
-I set out to make something to fit into a 3rd Generation iPod Nano. I'm not sure if this is actually possible. I toyed with the idea of using a smaller battery and using the space left behind to house the board. But I think the power and size constraints already prevent this from working. The board design I ended up with in v0.3 (the version as of right now) is thicker than it needs to be. Once I get comfortable with using other chipsets, it will likely be less invasive.
+I set out to make something to fit into a 3rd Generation iPod Nano. I'm not sure if this is actually possible. I toyed with the idea of using a smaller battery and using the space left behind to house the board. But I think the power and size constraints already prevent this from working. The board design I ended up with in v0.4 (the version as of right now) is thicker than it needs to be. Once I get comfortable with using other chipsets, it will likely be less invasive.
 
 I also attempted to design this board with highly available components with low entry-to-use. To that end, it is built around an ESP32 Module. This is likely not the most elegant way to do it, but they're readily available, have decent documentation, and I was able to program this with Arduino software which many people are already comfortable with. I hope this lowers the difficulty, because the soldering you have to do to make this work is kinda insane.
 

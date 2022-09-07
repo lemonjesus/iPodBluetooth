@@ -58,7 +58,6 @@ void setup(void) {
         if(strncmp(device_name_buffer, "reset", 5) == 0) {
           ESP.restart();
         } else {
-//        if(strncmp(device_name_buffer, "connect: ", 7) == 0) {
           strcpy(device_name, device_name_buffer);
           out.a2dp_source->set_local_name(device_name);
           break;

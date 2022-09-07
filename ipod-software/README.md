@@ -22,7 +22,7 @@ cd build-ipodnano3g
 ./MAKEBOOTLOADER.sh
 ```
 
-It should show you 
+At the end, if it all worked, you should see a directory listing with two files: the installer and uninstaller files. If one is missing, the code failed to compile and an error was printed to the console further up.
 
 ### Flash
 
@@ -31,4 +31,27 @@ It should show you
 ./mks5lboot --bl-inst bootloader-ipodnano3g.ipod
 ```
 
-Your iPod will beep a few times and then reboot into the software.
+Your iPod will beep a few times and then reboot into the software. If you hold the Play button down, the software will not enable serial communication so you can program the ESP32 without the iPod holding the serial lines high. 
+
+## Protocol
+On boot, the iPod will begin by sending `reset` commands to the Bluetooth board until it gets a response. This is to ensure that the Bluetooth board is in a known state.
+
+After that, the Bluetooth board will search for devices and report them in plain text to the iPod. The iPod will then display the devices on the screen and allow you to select one. Once you select a device, the iPod will send the name of the device to the Bluetooth board. The Bluetooth board will then attempt to connect to the device. If it succeeds, it will send `connected` to the iPod. The iPod will then boot into the iPod OS.
+
+Example communication (-> is iPod to Bluetooth, <- is Bluetooth to iPod):
+
+```
+-> reset
+-> reset
+<- starting
+<- device: Device Name 1
+<- device: Device Name 2
+<- device: Device Name 3
+-> Device Name 2
+<- connecting
+<- connecting
+<- connecting
+<- connected
+```
+
+At this point, the Bluetooth board uses serial to interact with the iPod over the accessory protocol. Theoretically, the ESP32 should always respond to `reset`, but sometimes it doesn't. I'm not sure why.
