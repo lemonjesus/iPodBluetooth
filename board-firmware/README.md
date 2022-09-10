@@ -1,9 +1,12 @@
 # Board Firmware
 
+## Prerequisites
 This section assumes you can build for the ESP32 in Arduino. If you can't follow [this guide](https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/). Be sure you use the newest version of the ESP32 board package.
 
+This guide also assumes you're programming the board in-circuit. To do this, you'll need a 30-pin breakout board. The one I use I bought [here](https://elabbay.myshopify.com/products/apple-30m-bo-v1ac-apple-30-pin-male-plug-breakout-board-compact-type) and has worked very well for me.
+
 ## Install Libraries
-This software uses modified versions of `arduino-audio-tools` and `ESP32-A2DP`. By the time this goes up, I probably won't have my code merged into the root fork, so you can use mine:
+This software uses modified versions of `arduino-audio-tools` and `ESP32-A2DP`. By the time this goes up, I probably won't have my code merged into the root fork, so you can use mine. Once cloned into your Arduino libraries folder, be sure you check out these specific SHAs:
 
  - [arduino-audio-tools](https://github.com/lemonjesus/arduino-audio-tools/tree/517695a2d953de52066b7be38fd35951edf9031d) @ SHA: `517695a2d953de52066b7be38fd35951edf9031d`
  - [ESP32-A2DP](https://github.com/lemonjesus/ESP32-A2DP/tree/08cdf1f96b26d54ff4a16171212da19edf79d683) @ SHA: `08cdf1f96b26d54ff4a16171212da19edf79d683`

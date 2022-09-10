@@ -15,7 +15,7 @@ I've linked example Mouser parts, but any equivalent part will do. The only thin
  - `R1` - [10k 0402 Resistor](https://www.mouser.com/ProductDetail/755-SFR01MZPF1002) - pullup resistor for the reset pin
 
 ## How to Purchase the Board
-I used JLCPCB to fabricate my boards. Nothing special other than being a 4-layer 0.8mm board. You can specify color if you're feeling spicy. You also need a stencil of the top layer. It's not necessary for you to have a bottom layer stencil.
+I used JLCPCB to fabricate my boards. Nothing special other than being a 4-layer 0.8mm board. You can specify color if you're feeling spicy. You also need a stencil of the top layer. It's not necessary for you to have a bottom layer stencil. There are two footprints on the bottom of the board for 0603 capacitors just in case I (or you) wanted to add extra capacitance to the power planes). I didn't end up using them, but they're there if you want to.
 
 ## How to Assemble (the easy way)
 1. Get sand from your local beach or sand store.

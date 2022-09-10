@@ -107,7 +107,6 @@ void setup(void) {
   Serial.print("connected\n");
 
 //  ESP_LOGI(LOG_TAG, "starting I2S... ");
-  Serial.print("starting I2S...\n");
   auto config = in.defaultConfig(RX_MODE);
   config.i2s_format = I2S_STD_FORMAT;
   config.sample_rate = 44100;
@@ -126,6 +125,7 @@ void setup(void) {
   
   ESP_LOGI(LOG_TAG, "Done!");
 
+  // step 5: start the tasks that will copy the audio data and handle the ipod control
   BaseType_t xReturned = xTaskCreate(audio_copy_task, "AudioCopyTask", 1024 * 8, NULL, tskIDLE_PRIORITY, &audio_copy_task_handle);
   if(xReturned != pdPASS) {
     Serial.print("error making the audio copy task. restarting.\n");
