@@ -15,6 +15,12 @@ The main program that you see running on the iPod is `bootloader/ipods5l-devel.c
  * `gcc-arm-none-eabi`
  * `libusb`
 
+That would look something like:
+
+```
+sudo apt install build-essential gcc-arm-none-eabi libusb-1.0-0-dev
+```
+
 ### Building
 
 ```bash

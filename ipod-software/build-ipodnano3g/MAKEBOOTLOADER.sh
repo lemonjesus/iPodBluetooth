@@ -1,7 +1,7 @@
 #!/bin/sh
 
-MYDIR=`pwd`
-RB_DIR=~/Development/rockbox
+MYDIR=$(dirname $(readlink -f "$0"))
+RB_DIR=$(dirname $(dirname $(readlink -f "$0")))
 BUILD_DIR=$RB_DIR/build-ipodnano3g
 MK6G_DIR=$RB_DIR/rbutil/mks5lboot
 FILE_DFU_INST=dualboot-installer-ipodnano3g.dfu

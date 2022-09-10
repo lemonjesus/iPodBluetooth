@@ -1,0 +1,84 @@
+# /
+# /build*
+/sim*
+/output
+*.elf
+*.exe
+*.so
+*.o
+*.a
+*.dfu
+*.bin
+*.ipod
+
+# buflib test code
+/firmware/test/buflib/test_main
+/firmware/test/buflib/test_main2
+/firmware/test/buflib/test_max
+/firmware/test/buflib/test_move
+/firmware/test/buflib/test_move2
+/firmware/test/buflib/test_shrink
+/firmware/test/buflib/test_shrink_cb
+/firmware/test/buflib/test_shrink_startchanged
+/firmware/test/buflib/test_shrink_unaligned
+
+# /rbutil/
+/rbutil/Makefile
+/rbutil/rbutil
+
+# /rbutil/ipodpatcher/
+/rbutil/ipodpatcher/ipodpatcher
+
+# /rbutil/chinachippatcher/
+/rbutil/chinachippatcher/chinachip
+
+# /rbutil/rbutilqt/
+/rbutil/rbutilqt/build
+/rbutil/rbutilqt/RockboxUtility
+/rbutil/rbutilqt/RockboxUtility.*
+/rbutil/rbutilqt/Makefile
+/rbutil/rbutilqt/*.qm
+/rbutil/rbutilqt/release
+/rbutil/rbutilqt/debug
+/rbutil/rbutilqt/*.Debug
+/rbutil/rbutilqt/*.Release
+/rbutil/rbutilqt/tags
+
+# /rbutil/rbutilqt/lang/
+/rbutil/rbutilqt/lang/*.qm
+
+# /tools/
+/tools/bdf2bmp
+/tools/sh2d
+/tools/scramble
+/tools/generate_rocklatin
+/tools/descramble
+/tools/convbdf
+/tools/bmp2rb
+/tools/codepages
+/tools/rdf2binary
+/tools/mkboot
+/tools/player_unifont
+/tools/uclpack
+/tools/ipod_fw
+/tools/wavtrim
+/tools/voicefont
+/tools/rbspeexenc
+/tools/rbspeexdec
+/tools/mknkboot
+/tools/mktccboot
+/tools/mkzenboot
+/tools/iaudio_bl_flash.c
+/tools/iaudio_bl_flash.h
+
+# /tools/database/
+/tools/database/database
+
+# /tools/rbspeex/
+/tools/rbspeex/build
+/tools/rbspeex/libspeex.a
+/tools/rbspeex/librbspeex.a
+/tools/rbspeex/dep-speex
+
+# /tools/ucl/src/
+/tools/ucl/src/libucl.a

@@ -1,6 +1,6 @@
 ## Automatically generated. http://www.rockbox.org/
 
-export ROOTDIR=/home/tucker/Development/rockbox
+export ROOTDIR=../
 export FIRMDIR=$(ROOTDIR)/firmware
 export APPSDIR=$(ROOTDIR)/bootloader
 export TOOLSDIR=$(ROOTDIR)/tools
