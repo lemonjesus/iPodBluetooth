@@ -1,6 +1,7 @@
 # iPod Bluetooth Board, Firmware, and Software
 
 ## [Watch The Video First](https://youtu.be/AVvXbqsTUnk)
+### [Featured on Hackaday!](https://hackaday.com/2022/09/14/esp32-adds-bluetooth-to-an-ipod-nano/)
 
 I've been working on this project for a while because I thought it would be simple. Feature creep and lack of skill have lead me on a year long journey down a rabbit hole of things I didn't expect to learn about. This has been fun (by some definition) and I hope someone somewhere finds use for this.
 
